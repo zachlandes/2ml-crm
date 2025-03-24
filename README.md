@@ -82,17 +82,16 @@ The application will detect that the database is missing, create a new one, and 
 - Tailwind CSS
 - React
 
-## Development
+## Running the Application
 
 ```bash
 # Install dependencies
 npm install
 
-# Run the development server
+# Run the application
 npm run dev
 ```
 
-## Environment Variables
+Once you've run these commands, the application will be available at [http://localhost:3000](http://localhost:3000) in your browser.
 
-Create a `.env.local` file with the following variables:
-- (Add your required environment variables here) 
+**Note**: This application is designed to run locally on your machine. The `npm run dev` command is not just for development - it's how you actually use the application.
