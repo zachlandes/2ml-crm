@@ -71,11 +71,6 @@ export default function FilterPanel({ allTags, onFilterChange, initialFilters }:
   // Extract current status and tag filters for easier access
   const { statuses: activeStatusFilters, tags: activeTagFilters, tagFilterMode } = filters;
   
-  // Apply filters when they change
-  useEffect(() => {
-    onFilterChange(filters);
-  }, [filters, onFilterChange]);
-  
   // Toggle status selection
   const toggleStatus = (status: string) => {
     setFilters(prev => {
@@ -129,6 +124,12 @@ export default function FilterPanel({ allTags, onFilterChange, initialFilters }:
       document.body.classList.remove('filter-panel-open');
     }
   }, [isExpanded]);
+  
+  // Apply the current filters
+  const applyFilters = () => {
+    onFilterChange(filters);
+    setIsExpanded(false);
+  };
   
   return (
     <div className={`w-full md:w-auto filter-panel ${isExpanded ? 'filter-panel-active' : ''}`}>
@@ -304,10 +305,7 @@ export default function FilterPanel({ allTags, onFilterChange, initialFilters }:
                   <Button
                     type="button"
                     size="sm"
-                    onClick={() => {
-                      onFilterChange(filters);
-                      setIsExpanded(false);
-                    }}
+                    onClick={applyFilters}
                     className="text-xs bg-primary hover:bg-primary/90 rounded-none"
                   >
                     Apply Filters

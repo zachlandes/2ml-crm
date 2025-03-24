@@ -1,6 +1,7 @@
 # 2ML CRM
 
 A modern CRM application for managing connections and relationships.
+![2ML CRM Dashboard](/public/images/screenshot_home.png)
 
 ## Features
 

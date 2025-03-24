@@ -203,18 +203,39 @@ export default function ConnectionsList({ initialConnections, allTags }: Connect
           {filteredConnections.map((connection, index) => (
             <Card 
               key={connection.id} 
-              className={`bauhaus-card border-l-4 ${getStatusColor(connection.status || 'new')}`}
+              className={`bauhaus-card border-l-4 ${getStatusColor(connection.status || 'new')} cursor-pointer`}
               style={{ zIndex: filteredConnections.length - index }}
+              onClick={(e) => {
+                // If the click is on a button, link, or dropdown, don't navigate
+                const target = e.target as HTMLElement;
+                if (
+                  target.tagName === 'BUTTON' || 
+                  target.closest('button') || 
+                  target.tagName === 'A' || 
+                  target.closest('a') ||
+                  target.closest('.status-dropdown')
+                ) {
+                  return;
+                }
+                
+                // Use window.location for a guaranteed navigation
+                const connectionId = connection.id;
+                if (connectionId) {
+                  // Force navigation via window.location
+                  window.location.href = `/connection/${connectionId}`;
+                }
+              }}
             >
               <CardContent className="p-0 overflow-visible">
                 <div className="flex flex-col sm:flex-row overflow-visible">
                   <div className="border-b sm:border-b-0 sm:border-r border-border sm:w-64 p-4 overflow-visible">
-                    <Link 
+                    {/* Use a regular <a> tag instead of Next.js Link for more reliable navigation */}
+                    <a 
                       href={`/connection/${connection.id}`}
                       className="font-medium hover:text-primary transition-colors block mb-1"
                     >
                       {connection.firstName} {connection.lastName}
-                    </Link>
+                    </a>
                     <p className="text-sm text-muted-foreground mb-2">
                       {connection.company || 'No company'}
                     </p>
@@ -264,6 +285,16 @@ export default function ConnectionsList({ initialConnections, allTags }: Connect
                           ))}
                         </div>
                       )}
+                      
+                      {/* Additional view details link - use regular <a> tag */}
+                      <div className="mt-4 flex justify-end">
+                        <a
+                          href={`/connection/${connection.id}`}
+                          className="text-xs text-primary hover:text-primary/80"
+                        >
+                          View Details →
+                        </a>
+                      </div>
                     </div>
                   </div>
                 </div>
