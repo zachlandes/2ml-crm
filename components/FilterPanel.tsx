@@ -47,7 +47,20 @@ export default function FilterPanel({ allTags, onFilterChange, initialFilters }:
     tagFilterMode: 'OR',
     searchTerm: ''
   });
+  const [isClient, setIsClient] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  
+  // Set client-side flag after hydration
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+  
+  // Update local filters when initialFilters changes from parent
+  useEffect(() => {
+    if (initialFilters) {
+      setFilters(initialFilters);
+    }
+  }, [initialFilters]);
   
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -145,18 +158,20 @@ export default function FilterPanel({ allTags, onFilterChange, initialFilters }:
         >
           <Filter className="h-4 w-4" />
           <span>Filters</span>
-          <div className="flex -space-x-1 ml-1">
-            {activeStatusFilters.length > 0 && (
-              <span className="inline-flex items-center justify-center h-5 w-5 rounded-full bg-primary/20 text-xs font-medium">
-                {activeStatusFilters.length}
-              </span>
-            )}
-            {activeTagFilters.length > 0 && (
-              <span className="inline-flex items-center justify-center h-5 w-5 rounded-full bg-accent/20 text-xs font-medium">
-                {activeTagFilters.length}
-              </span>
-            )}
-          </div>
+          {isClient && (
+            <div className="flex -space-x-1 ml-1">
+              {activeStatusFilters.length > 0 && (
+                <span className="inline-flex items-center justify-center h-5 w-5 rounded-full bg-primary/20 text-xs font-medium">
+                  {activeStatusFilters.length}
+                </span>
+              )}
+              {activeTagFilters.length > 0 && (
+                <span className="inline-flex items-center justify-center h-5 w-5 rounded-full bg-accent/20 text-xs font-medium">
+                  {activeTagFilters.length}
+                </span>
+              )}
+            </div>
+          )}
         </Button>
 
         {isExpanded && (

@@ -15,8 +15,34 @@ interface ConnectionsListProps {
 }
 
 export default function ConnectionsList({ initialConnections, allTags }: ConnectionsListProps) {
+  // Add client-side only flag to prevent hydration errors
+  const [isClient, setIsClient] = useState(false);
+  
+  // Initial load of saved filters from localStorage
+  const loadSavedFilters = (): FilterOptions => {
+    if (typeof window !== 'undefined') {
+      try {
+        const savedFilters = localStorage.getItem('crm-filter-options');
+        if (savedFilters) {
+          return JSON.parse(savedFilters);
+        }
+      } catch (error) {
+        console.error('Error loading saved filters:', error);
+      }
+    }
+    
+    // Default filters if nothing is saved
+    return {
+      statuses: [],
+      tags: [],
+      tagFilterMode: 'OR',
+      searchTerm: ''
+    };
+  };
+  
   const [connections, setConnections] = useState<Connection[]>(initialConnections);
   const [searchTerm, setSearchTerm] = useState('');
+  // Use empty default filters for server-side rendering
   const [filterOptions, setFilterOptions] = useState<FilterOptions>({
     statuses: [],
     tags: [],
@@ -25,6 +51,25 @@ export default function ConnectionsList({ initialConnections, allTags }: Connect
   });
   const [filteredConnections, setFilteredConnections] = useState<Connection[]>(initialConnections);
   const [isLoading, setIsLoading] = useState(false);
+  
+  // Set the client-side flag and load filters from localStorage
+  useEffect(() => {
+    setIsClient(true);
+    const savedFilters = loadSavedFilters();
+    setFilterOptions(savedFilters);
+    
+    if (savedFilters.searchTerm) {
+      setSearchTerm(savedFilters.searchTerm);
+    }
+    
+    // Apply the saved filters on initial load
+    applyFilters(
+      savedFilters.searchTerm || '', 
+      savedFilters.statuses, 
+      savedFilters.tags, 
+      savedFilters.tagFilterMode
+    );
+  }, []);
   
   // Function to get status badge color
   const getStatusColor = (status: string) => {
@@ -71,19 +116,59 @@ export default function ConnectionsList({ initialConnections, allTags }: Connect
   // Handle filter changes from FilterPanel
   const handleFilterChange = (newFilters: FilterOptions) => {
     // Only update filters, don't modify search term state to avoid circular updates
-    setFilterOptions(prevFilters => ({
+    const updatedFilters = {
       ...newFilters,
       searchTerm: searchTerm // Keep using our controlled search term
-    }));
+    };
+    
+    setFilterOptions(updatedFilters);
+    
+    // Save to localStorage
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('crm-filter-options', JSON.stringify(updatedFilters));
+      } catch (error) {
+        console.error('Error saving filters to localStorage:', error);
+      }
+    }
   };
   
   // Handle search with local filtering instead of through filterOptions
   const handleSearch = (term: string) => {
     setSearchTerm(term);
     
+    // Save the search term to localStorage as part of the filters
+    const updatedFilters = {
+      ...filterOptions,
+      searchTerm: term
+    };
+    
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('crm-filter-options', JSON.stringify(updatedFilters));
+      } catch (error) {
+        console.error('Error saving search term to localStorage:', error);
+      }
+    }
+    
     // Skip the effect chain for better performance
     applyFilters(term, filterOptions.statuses, filterOptions.tags, filterOptions.tagFilterMode);
   };
+  
+  // Synchronize searchTerm with loaded filters on initial mount
+  useEffect(() => {
+    if (filterOptions.searchTerm) {
+      setSearchTerm(filterOptions.searchTerm);
+    }
+    
+    // Apply the saved filters on initial load
+    applyFilters(
+      filterOptions.searchTerm || '', 
+      filterOptions.statuses, 
+      filterOptions.tags, 
+      filterOptions.tagFilterMode
+    );
+  }, []);
   
   // Directly apply filters instead of relying on effects
   const applyFilters = async (
@@ -179,7 +264,7 @@ export default function ConnectionsList({ initialConnections, allTags }: Connect
         <FilterPanel 
           allTags={allTags} 
           onFilterChange={handleFilterChange} 
-          initialFilters={filterOptions}
+          initialFilters={isClient ? filterOptions : undefined}
         />
       </div>
 
@@ -192,7 +277,25 @@ export default function ConnectionsList({ initialConnections, allTags }: Connect
         <div className="text-center py-12 border border-dashed border-muted-foreground/30">
           <p className="text-muted-foreground">No connections found matching your filters.</p>
           <Button 
-            onClick={() => handleFilterChange({ statuses: [], tags: [], tagFilterMode: 'OR', searchTerm: '' })}
+            onClick={() => {
+              const emptyFilters: FilterOptions = { 
+                statuses: [], 
+                tags: [], 
+                tagFilterMode: 'OR', 
+                searchTerm: '' 
+              };
+              handleFilterChange(emptyFilters);
+              setSearchTerm('');
+              
+              // Also clear from localStorage
+              if (typeof window !== 'undefined') {
+                try {
+                  localStorage.removeItem('crm-filter-options');
+                } catch (error) {
+                  console.error('Error clearing filters from localStorage:', error);
+                }
+              }
+            }}
             className="mt-4 bg-primary hover:bg-primary/90"
           >
             Clear Filters
