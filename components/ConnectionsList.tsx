@@ -68,69 +68,83 @@ export default function ConnectionsList({ initialConnections, allTags }: Connect
     }
   };
   
-  // Handle filter changes
+  // Handle filter changes from FilterPanel
   const handleFilterChange = (newFilters: FilterOptions) => {
-    setFilterOptions(newFilters);
+    // Only update filters, don't modify search term state to avoid circular updates
+    setFilterOptions(prevFilters => ({
+      ...newFilters,
+      searchTerm: searchTerm // Keep using our controlled search term
+    }));
+  };
+  
+  // Handle search with local filtering instead of through filterOptions
+  const handleSearch = (term: string) => {
+    setSearchTerm(term);
     
-    // Update the search term if it changed
-    if (newFilters.searchTerm !== searchTerm) {
-      setSearchTerm(newFilters.searchTerm || '');
+    // Skip the effect chain for better performance
+    applyFilters(term, filterOptions.statuses, filterOptions.tags, filterOptions.tagFilterMode);
+  };
+  
+  // Directly apply filters instead of relying on effects
+  const applyFilters = async (
+    term: string, 
+    statuses: string[], 
+    tags: string[], 
+    tagMode: 'OR' | 'AND'
+  ) => {
+    try {
+      setIsLoading(true);
+      let results = [...initialConnections];
+      
+      // If we have tag filters, fetch them from the API
+      if (tags.length > 0) {
+        const taggedConnections = await fetchConnectionsByTags(tags, tagMode);
+        if (taggedConnections) {
+          results = taggedConnections;
+        }
+      }
+      
+      // Filter by search term
+      if (term) {
+        const searchTerm = term.toLowerCase().trim();
+        results = results.filter(connection => {
+          const fullName = `${connection.firstName.toLowerCase()} ${connection.lastName.toLowerCase()}`;
+          const lastFirst = `${connection.lastName.toLowerCase()} ${connection.firstName.toLowerCase()}`;
+          
+          return (
+            fullName.includes(searchTerm) ||
+            lastFirst.includes(searchTerm) ||
+            connection.firstName.toLowerCase().includes(searchTerm) ||
+            connection.lastName.toLowerCase().includes(searchTerm) ||
+            (connection.company && connection.company.toLowerCase().includes(searchTerm)) ||
+            (connection.position && connection.position.toLowerCase().includes(searchTerm))
+          );
+        });
+      }
+      
+      // Filter by status
+      if (statuses.length > 0) {
+        results = results.filter(connection => 
+          statuses.includes(connection.status || 'new')
+        );
+      }
+      
+      setFilteredConnections(results);
+    } finally {
+      setIsLoading(false);
     }
   };
   
-  // Filter connections based on all criteria
+  // Apply filters when filterOptions change (but not when searchTerm changes)
   useEffect(() => {
-    const filterConnections = async () => {
-      setIsLoading(true);
-      
-      try {
-        let results = [...initialConnections];
-        
-        // If tags are selected, fetch connections by tags first
-        if (filterOptions.tags.length > 0) {
-          const taggedConnections = await fetchConnectionsByTags(
-            filterOptions.tags, 
-            filterOptions.tagFilterMode
-          );
-          
-          if (taggedConnections) {
-            results = taggedConnections;
-          }
-        }
-        
-        // Filter by search term
-        if (searchTerm) {
-          const term = searchTerm.toLowerCase().trim();
-          results = results.filter(connection => {
-            const fullName = `${connection.firstName.toLowerCase()} ${connection.lastName.toLowerCase()}`;
-            const lastFirst = `${connection.lastName.toLowerCase()} ${connection.firstName.toLowerCase()}`;
-            
-            return (
-              fullName.includes(term) ||
-              lastFirst.includes(term) ||
-              connection.firstName.toLowerCase().includes(term) ||
-              connection.lastName.toLowerCase().includes(term) ||
-              (connection.company && connection.company.toLowerCase().includes(term)) ||
-              (connection.position && connection.position.toLowerCase().includes(term))
-            );
-          });
-        }
-        
-        // Filter by status
-        if (filterOptions.statuses.length > 0) {
-          results = results.filter(connection => 
-            filterOptions.statuses.includes(connection.status || 'new')
-          );
-        }
-        
-        setFilteredConnections(results);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    
-    filterConnections();
-  }, [initialConnections, searchTerm, filterOptions]);
+    // Don't run this effect when only searchTerm changes
+    applyFilters(
+      searchTerm, 
+      filterOptions.statuses, 
+      filterOptions.tags, 
+      filterOptions.tagFilterMode
+    );
+  }, [initialConnections, filterOptions.statuses, filterOptions.tags, filterOptions.tagFilterMode]);
   
   if (initialConnections.length === 0) {
     return (
@@ -148,16 +162,13 @@ export default function ConnectionsList({ initialConnections, allTags }: Connect
           <input
             type="text"
             value={searchTerm}
-            onChange={(e) => {
-              setSearchTerm(e.target.value);
-              setFilterOptions(prev => ({ ...prev, searchTerm: e.target.value }));
-            }}
+            onChange={(e) => handleSearch(e.target.value)}
             placeholder="Search connections..."
             className="w-full bg-background border border-input focus:border-primary focus:ring-1 focus:ring-primary py-2 pl-3 pr-10 rounded-none"
           />
           {searchTerm && (
             <button
-              onClick={() => setSearchTerm('')}
+              onClick={() => handleSearch('')}
               className="absolute right-3 top-2.5 text-muted-foreground hover:text-foreground"
             >
               ×
