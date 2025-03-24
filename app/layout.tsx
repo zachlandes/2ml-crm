@@ -54,7 +54,7 @@ export default function RootLayout({
                 <div className="h-3 w-3 bg-secondary"></div>
                 <div className="h-3 w-3 bg-accent"></div>
               </div>
-              <p className="mt-2">© 2023 2ML CRM • Bauhaus-inspired design</p>
+              <p className="mt-2">© 2025 2ML CRM</p>
             </div>
           </footer>
         </div>
