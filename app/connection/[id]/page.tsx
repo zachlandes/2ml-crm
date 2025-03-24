@@ -61,14 +61,31 @@ export default async function ConnectionPage({ params }: ConnectionPageProps) {
         type: note.type,
         createdAt: note.createdAt
       })),
-      ...messages.map(message => ({
-        id: message.id,
-        connectionId: message.connectionId,
-        content: message.content.substring(0, 100) + (message.content.length > 100 ? '...' : ''),
-        type: 'message',
-        createdAt: message.sentAt || message.createdAt,
-        status: message.status
-      })),
+      // Filter out regular messages if there's a message_sent note for them
+      ...messages
+        .filter(message => {
+          // Only include messages that don't have a corresponding 'message_sent' note
+          // A message will be duplicated if:
+          // 1. It has status 'sent' AND
+          // 2. There's a note of type 'message_sent' that includes part of its content
+          if (message.status !== 'sent') {
+            return true; // Always include draft messages
+          }
+          
+          const messageContent = message.content.substring(0, 50);
+          return !notes.some(note => 
+            note.type === 'message_sent' && 
+            note.content.includes(messageContent)
+          );
+        })
+        .map(message => ({
+          id: message.id,
+          connectionId: message.connectionId,
+          content: message.content.substring(0, 100) + (message.content.length > 100 ? '...' : ''),
+          type: 'message',
+          createdAt: message.sentAt || message.createdAt || new Date().toISOString(),
+          status: message.status
+        })),
       ...reminders.map(reminder => ({
         id: reminder.id,
         connectionId: reminder.connectionId,

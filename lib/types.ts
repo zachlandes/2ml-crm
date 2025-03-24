@@ -28,6 +28,7 @@ export interface Message {
   status: 'draft' | 'sent' | 'failed';
   template: string;
   metadata?: any;
+  createdAt?: string;
 }
 
 export interface Note {
