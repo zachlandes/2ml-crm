@@ -9,50 +9,56 @@ export default async function Home() {
   const allTags = await getAllTags();
   
   return (
-    <main className="container mx-auto p-4">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <section className="relative">
+      {/* Bauhaus decorative elements */}
+      <div className="bauhaus-line w-32 -rotate-45 top-10 left-0"></div>
+      <div className="bauhaus-circle w-24 h-24 bg-secondary/10 top-40 right-10"></div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div className="md:col-span-2">
-          <div className="mb-6">
-            <h1 className="text-2xl font-bold mb-2">My Connections</h1>
-            <p className="text-gray-600">
-              Manage and track your LinkedIn connections, messages, and follow-ups.
-            </p>
-            <p className="text-gray-500 text-sm mt-2">
-              Total Connections: {initialConnections.length}
-            </p>
-          </div>
+          <header className="mb-8 relative">
+            <div className="absolute -top-2 -left-3 h-12 w-3 bg-primary"></div>
+            <h1 className="text-3xl font-bold mb-3 pl-2">My Connections</h1>
+            <div className="flex items-center justify-between">
+              <p className="text-muted-foreground">
+                Manage and track your LinkedIn connections, messages, and follow-ups.
+              </p>
+              <span className="inline-flex items-center px-3 py-1 bg-muted text-muted-foreground text-sm">
+                {initialConnections.length} Connections
+              </span>
+            </div>
+          </header>
           
           <ConnectionsList initialConnections={initialConnections} allTags={allTags} />
         </div>
         
         <div>
-          <RemindersPanel />
-          
-          <div className="bg-white rounded-lg shadow-md p-4 mt-6">
-            <h2 className="text-lg font-semibold mb-3">Quick Tips</h2>
-            <ul className="space-y-2 text-sm">
-              <li className="flex items-start">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-500 mr-2 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                </svg>
-                <span>Use the <strong>status selector</strong> to track your engagement with each connection.</span>
-              </li>
-              <li className="flex items-start">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-500 mr-2 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                </svg>
-                <span>Set <strong>reminders</strong> for follow-ups to stay on top of important connections.</span>
-              </li>
-              <li className="flex items-start">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-500 mr-2 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                </svg>
-                <span>Use <strong>tags</strong> to categorize connections and filter your list efficiently.</span>
-              </li>
-            </ul>
+          <div className="sticky top-24">
+            <RemindersPanel />
+            
+            <div className="bg-card bauhaus-card border-accent px-6 py-5 mt-8">
+              <h2 className="text-lg font-semibold mb-4 flex items-center">
+                <div className="h-4 w-4 bg-accent mr-2"></div>
+                Quick Tips
+              </h2>
+              <ul className="space-y-4">
+                <li className="flex items-start relative pl-6">
+                  <div className="absolute left-0 top-1.5 h-2 w-2 bg-primary"></div>
+                  <span>Use the <strong className="text-primary">status selector</strong> to track your engagement with each connection.</span>
+                </li>
+                <li className="flex items-start relative pl-6">
+                  <div className="absolute left-0 top-1.5 h-2 w-2 bg-secondary"></div>
+                  <span>Set <strong className="text-secondary">reminders</strong> for follow-ups to stay on top of important connections.</span>
+                </li>
+                <li className="flex items-start relative pl-6">
+                  <div className="absolute left-0 top-1.5 h-2 w-2 bg-accent"></div>
+                  <span>Use <strong className="text-accent">tags</strong> to categorize connections and filter your list efficiently.</span>
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
       </div>
-    </main>
+    </section>
   );
 } 

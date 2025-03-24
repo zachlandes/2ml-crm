@@ -79,37 +79,53 @@ export default function RemindersPanel() {
   
   if (loading) {
     return (
-      <div className="bg-white rounded-lg shadow-md p-4">
-        <h2 className="text-lg font-semibold mb-2">Reminders</h2>
-        <p className="text-gray-500 text-sm">Loading reminders...</p>
+      <div className="bg-card bauhaus-card border-primary px-6 py-5 shadow-md">
+        <h2 className="text-lg font-semibold mb-4 flex items-center">
+          <div className="h-4 w-4 bg-primary mr-2"></div>
+          Reminders
+        </h2>
+        
+        <div className="py-8 flex justify-center">
+          <div className="inline-block h-5 w-5 border-2 border-primary/50 border-t-primary rounded-full animate-spin"></div>
+        </div>
       </div>
     );
   }
   
   if (todayReminders.length === 0 && overdueReminders.length === 0) {
     return (
-      <div className="bg-white rounded-lg shadow-md p-4">
-        <h2 className="text-lg font-semibold mb-2">Reminders</h2>
-        <p className="text-gray-500 text-sm">No upcoming reminders.</p>
+      <div className="bg-card bauhaus-card border-primary px-6 py-5 shadow-md">
+        <h2 className="text-lg font-semibold mb-4 flex items-center">
+          <div className="h-4 w-4 bg-primary mr-2"></div>
+          Reminders
+        </h2>
+        
+        <div className="py-6 text-center">
+          <p className="text-muted-foreground text-sm">No reminders for today</p>
+        </div>
       </div>
     );
   }
   
   return (
-    <div className="bg-white rounded-lg shadow-md p-4">
-      <h2 className="text-lg font-semibold mb-3">Reminders</h2>
+    <div className="bg-card bauhaus-card border-primary px-6 py-5 shadow-md">
+      <h2 className="text-lg font-semibold mb-4 flex items-center">
+        <div className="h-4 w-4 bg-primary mr-2"></div>
+        Reminders
+      </h2>
       
       {overdueReminders.length > 0 && (
-        <div className="mb-4">
-          <h3 className="text-sm font-medium text-red-600 mb-2">
+        <div className="mb-6">
+          <h3 className="text-sm font-medium text-destructive mb-3 flex items-center">
+            <div className="h-3 w-3 bg-destructive mr-2"></div>
             Overdue ({overdueReminders.length})
           </h3>
-          <ul className="space-y-2">
+          <ul className="space-y-3">
             {overdueReminders.map(reminder => (
-              <li key={reminder.id} className="flex items-start border-l-2 border-red-400 pl-2 py-1">
+              <li key={reminder.id} className="flex items-start border-l-2 border-destructive bg-destructive/5 pl-3 py-2">
                 <input
                   type="checkbox"
-                  className="mr-2 mt-1"
+                  className="mr-3 mt-1 rounded-none border-destructive text-destructive focus:ring-destructive"
                   onChange={() => handleCompleteReminder(reminder.id)}
                 />
                 <div className="flex-1 min-w-0">
@@ -117,13 +133,13 @@ export default function RemindersPanel() {
                     <p className="font-medium text-sm truncate">
                       {reminder.title}
                     </p>
-                    <span className="text-xs text-red-600 whitespace-nowrap ml-2">
+                    <span className="text-xs text-destructive whitespace-nowrap ml-2">
                       {formatDate(reminder.dueDate)}
                     </span>
                   </div>
                   <Link 
                     href={`/connection/${reminder.connectionId}`}
-                    className="text-xs text-blue-600 hover:text-blue-800"
+                    className="text-xs text-muted-foreground hover:text-primary transition-colors"
                   >
                     {reminder.connectionName}
                   </Link>
@@ -136,15 +152,16 @@ export default function RemindersPanel() {
       
       {todayReminders.length > 0 && (
         <div>
-          <h3 className="text-sm font-medium text-blue-600 mb-2">
+          <h3 className="text-sm font-medium text-primary mb-3 flex items-center">
+            <div className="h-3 w-3 bg-primary mr-2"></div>
             Today ({todayReminders.length})
           </h3>
-          <ul className="space-y-2">
+          <ul className="space-y-3">
             {todayReminders.map(reminder => (
-              <li key={reminder.id} className="flex items-start border-l-2 border-blue-400 pl-2 py-1">
+              <li key={reminder.id} className="flex items-start border-l-2 border-primary bg-primary/5 pl-3 py-2">
                 <input
                   type="checkbox"
-                  className="mr-2 mt-1"
+                  className="mr-3 mt-1 rounded-none border-primary text-primary focus:ring-primary"
                   onChange={() => handleCompleteReminder(reminder.id)}
                 />
                 <div className="flex-1 min-w-0">
@@ -155,7 +172,7 @@ export default function RemindersPanel() {
                   </div>
                   <Link 
                     href={`/connection/${reminder.connectionId}`}
-                    className="text-xs text-blue-600 hover:text-blue-800"
+                    className="text-xs text-muted-foreground hover:text-primary transition-colors"
                   >
                     {reminder.connectionName}
                   </Link>

@@ -4,65 +4,71 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Bauhaus-inspired color palette - more geometric and bold */
+    --background: 220 25% 97%;
+    --foreground: 220 70% 15%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 220 70% 15%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 220 70% 15%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Primary - a bold blue inspired by Bauhaus */
+    --primary: 210 100% 50%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Secondary - deep red for contrast */
+    --secondary: 350 80% 55%;
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    /* Muted - subtle gray with blue tint */
+    --muted: 220 20% 92%;
+    --muted-foreground: 220 40% 40%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    /* Accent - geometric yellow */
+    --accent: 45 100% 50%;
+    --accent-foreground: 220 70% 15%;
 
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 220 25% 86%;
+    --input: 220 25% 86%;
+    --ring: 220 70% 15%;
 
-    --radius: 0.5rem;
+    /* Sharper corners for a more geometric feel */
+    --radius: 2px;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    --background: 220 35% 12%;
+    --foreground: 220 10% 98%;
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --card: 220 35% 15%;
+    --card-foreground: 220 10% 98%;
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 220 35% 15%;
+    --popover-foreground: 220 10% 98%;
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary: 210 100% 50%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 350 80% 50%;
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 220 30% 20%;
+    --muted-foreground: 220 10% 70%;
 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 45 100% 50%;
+    --accent-foreground: 220 70% 15%;
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 45%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    --border: 220 30% 25%;
+    --input: 220 30% 25%;
+    --ring: 220 10% 70%;
   }
 }
 
@@ -72,5 +78,111 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-feature-settings: "ss01", "ss03", "cv01", "cv02";
   }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-bold tracking-tight;
+    letter-spacing: -0.02em;
+  }
+}
+
+/* Bauhaus-inspired geometric elements */
+@layer components {
+  .bauhaus-grid {
+    background-image: linear-gradient(to right, hsl(var(--border)/10%) 1px, transparent 1px),
+                      linear-gradient(to bottom, hsl(var(--border)/10%) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+  
+  .bauhaus-circle {
+    @apply absolute rounded-full;
+    z-index: -1;
+  }
+  
+  .bauhaus-line {
+    @apply absolute bg-accent;
+    height: 2px;
+    z-index: -1;
+  }
+  
+  .bauhaus-card {
+    @apply rounded-none border-l-4 border-primary shadow-lg relative overflow-hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  
+  .bauhaus-card:hover {
+    transform: translateY(-2px);
+    @apply shadow-xl;
+  }
+}
+
+/* Ensure dropdowns can render outside containers */
+.bauhaus-card,
+.card,
+.card-content,
+[class*="overflow-hidden"] {
+  overflow: visible !important;
+}
+
+/* Enhanced z-index management */
+/* Control all cards in the list to ensure proper stacking */
+.grid .bauhaus-card {
+  position: relative;
+  z-index: 1; /* Base z-index for all cards */
+}
+
+/* Cards with active dropdowns should always be on top */
+.grid .bauhaus-card:has(.status-dropdown-active) {
+  z-index: 50 !important;
+}
+
+/* The status dropdown itself */
+.status-dropdown {
+  position: relative;
+  z-index: 50;
+}
+
+/* The dropdown menu when open */
+.status-dropdown-menu {
+  z-index: 9999;
+  position: absolute;
+  /* Ensure it's rendered on top of everything */
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+  /* Create a new stacking context */
+  isolation: isolate;
+}
+
+/* The dropdown menu when open - extra specificity */
+div[data-status-dropdown="true"] {
+  position: absolute;
+  z-index: 9999 !important;
+}
+
+/* Add this to the body when a dropdown is active to prevent z-index issues */
+body:has(.status-dropdown-active) .grid .bauhaus-card:not(:has(.status-dropdown-active)) {
+  z-index: 0 !important;
+}
+
+/* Filter panel dropdown positioning & z-index */
+.filter-panel {
+  position: relative;
+  z-index: 60; /* Higher than cards */
+}
+
+.filter-panel-dropdown {
+  position: absolute;
+  z-index: 9999 !important;
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+  isolation: isolate;
+}
+
+.filter-panel-active {
+  z-index: 100 !important;
+}
+
+/* When filter is open, ensure it stays on top of all other elements */
+body:has(.filter-panel-active) .bauhaus-card,
+body:has(.filter-panel-active) .status-dropdown {
+  z-index: 1 !important;
 } 
