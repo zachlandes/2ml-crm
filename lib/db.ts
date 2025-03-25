@@ -131,6 +131,18 @@ export async function initializeDatabase() {
     );
   `);
   
+  // Create action tracker table to track user engagement
+  await db.exec(`
+    CREATE TABLE IF NOT EXISTS action_tracker (
+      id TEXT PRIMARY KEY,
+      userId TEXT NOT NULL DEFAULT 'current_user',
+      actionType TEXT NOT NULL,
+      count INTEGER NOT NULL DEFAULT 1,
+      lastUpdatedAt TEXT NOT NULL,
+      createdAt TEXT NOT NULL
+    );
+  `);
+  
   return db;
 }
 

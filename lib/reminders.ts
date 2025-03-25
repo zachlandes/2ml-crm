@@ -1,5 +1,6 @@
 import { openDb } from './db';
 import { v4 as uuidv4 } from 'uuid';
+import { trackAction } from './actionTracker';
 
 export interface Reminder {
   id: string;
@@ -29,6 +30,9 @@ export async function createReminder(
     INSERT INTO reminders (id, connectionId, title, description, dueDate, createdAt)
     VALUES (?, ?, ?, ?, ?, ?)
   `, id, connectionId, title, description || null, dueDate, now);
+  
+  // Track the reminder creation
+  await trackAction('reminder_created');
   
   return {
     id,
@@ -88,6 +92,9 @@ export async function completeReminder(id: string): Promise<void> {
     SET completed = 1, completedAt = ?
     WHERE id = ?
   `, now, id);
+  
+  // Track the reminder completion
+  await trackAction('reminder_completed');
 }
 
 // Mark a reminder as incomplete

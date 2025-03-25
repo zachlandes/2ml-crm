@@ -8,6 +8,7 @@ import { Connection } from './types';
 import { createHash } from 'crypto';
 import { openDb } from './db';
 import { v4 as uuidv4 } from 'uuid';
+import { trackAction } from './actionTracker';
 
 // Generate a stable ID based on connection data
 function generateStableId(firstName: string, lastName: string): string {
@@ -267,8 +268,20 @@ export async function getConnection(id: string): Promise<Connection | null> {
 export async function updateConnectionNotes(id: string, notes: string): Promise<Connection | null> {
   try {
     const db = await openDb();
+    const now = new Date().toISOString();
     
+    // First, update the notes field in the connections table
     await db.run('UPDATE connections SET notes = ? WHERE id = ?', notes, id);
+    
+    // Also create a note entry for the timeline - include the actual note content
+    const noteId = uuidv4();
+    await db.run(
+      'INSERT INTO notes (id, connectionId, content, type, createdAt) VALUES (?, ?, ?, ?, ?)',
+      noteId, id, notes, 'note_updated', now
+    );
+    
+    // Track the note addition
+    await trackAction('note_added');
     
     // Get the updated connection
     return getConnection(id);
@@ -288,6 +301,9 @@ export async function updateConnectionStatus(id: string, status: string): Promis
       'UPDATE connections SET status = ?, lastContactedAt = ? WHERE id = ?', 
       status, now, id
     );
+    
+    // Track the status update
+    await trackAction('status_updated');
     
     // Get the updated connection
     return getConnection(id);
@@ -318,6 +334,9 @@ export async function addConnectionNote(
       'UPDATE connections SET lastContactedAt = ? WHERE id = ?',
       now, connectionId
     );
+    
+    // Track the note addition
+    await trackAction('note_added');
     
     return { id };
   } catch (error) {
@@ -368,6 +387,9 @@ export async function addTagToConnection(connectionId: string, tagId: string): P
       'INSERT OR IGNORE INTO connection_tags (connectionId, tagId) VALUES (?, ?)',
       connectionId, tagId
     );
+    
+    // Track the connection tagging
+    await trackAction('connection_tagged');
     
     return true;
   } catch (error) {
@@ -422,6 +444,21 @@ export async function removeTagFromConnection(connectionId: string, tagId: strin
     return true;
   } catch (error) {
     console.error(`Error removing tag ${tagId} from connection ${connectionId}:`, error);
+    return false;
+  }
+}
+
+// Function to delete a note by ID
+export async function deleteNote(id: string): Promise<boolean> {
+  try {
+    const db = await openDb();
+    
+    // Delete the note
+    await db.run('DELETE FROM notes WHERE id = ?', id);
+    
+    return true;
+  } catch (error) {
+    console.error(`Error deleting note ${id}:`, error);
     return false;
   }
 } 

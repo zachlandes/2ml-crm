@@ -4,6 +4,7 @@ import { Message } from './types';
 import { v4 as uuidv4 } from 'uuid';
 import { openDb } from './db';
 import { updateConnectionStatus } from './connections';
+import { trackAction } from './actionTracker';
 
 // Function to save a message to the database
 export async function saveMessage(message: Omit<Message, 'id'>): Promise<Message> {
@@ -60,6 +61,9 @@ export async function markMessageAsSent(id: string): Promise<Message | null> {
     
     // Update the connection status to 'contacted'
     await updateConnectionStatus(updatedMessage.connectionId, 'contacted');
+    
+    // Track the message sent action
+    await trackAction('message_sent');
     
     console.log(`Message ${id} marked as sent`);
     return updatedMessage;

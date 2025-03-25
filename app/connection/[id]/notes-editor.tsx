@@ -30,10 +30,18 @@ export default function NotesEditor({ connection }: NotesEditorProps) {
       await updateConnectionNotes(connection.id, notes);
       setSaveSuccess(true);
       
+      // Don't clear the notes - keep them for future editing
+      // setNotes('');
+      
       // Reset success message after 3 seconds
       setTimeout(() => {
         setSaveSuccess(false);
       }, 3000);
+      
+      // Refresh the page to show the updated timeline
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
     } catch (error) {
       console.error('Error saving notes:', error);
     } finally {
@@ -61,6 +69,11 @@ export default function NotesEditor({ connection }: NotesEditorProps) {
         const now = new Date().toLocaleString();
         return `${prev ? prev + '\n\n' : ''}[${now}] ${quickNote}`;
       });
+      
+      // Refresh the page to show the updated timeline
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
     } catch (error) {
       console.error('Error adding quick note:', error);
     } finally {
