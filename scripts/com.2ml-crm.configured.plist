@@ -7,14 +7,14 @@
     <key>ProgramArguments</key>
     <array>
         <string>/bin/bash</string>
-        <string>ABSOLUTE_PATH_TO_BE_REPLACED/scripts/start-production.sh</string>
+        <string>/Users/zacharylandes/code/2ML/2ml-crm/scripts/start-production.sh</string>
     </array>
     <key>RunAtLoad</key>
     <true/>
     <key>StandardErrorPath</key>
-    <string>ABSOLUTE_PATH_TO_BE_REPLACED/logs/error.log</string>
+    <string>/Users/zacharylandes/code/2ML/2ml-crm/logs/error.log</string>
     <key>StandardOutPath</key>
-    <string>ABSOLUTE_PATH_TO_BE_REPLACED/logs/output.log</string>
+    <string>/Users/zacharylandes/code/2ML/2ml-crm/logs/output.log</string>
     <key>EnvironmentVariables</key>
     <dict>
         <key>PATH</key>
@@ -23,6 +23,6 @@
         <string>4500</string>
     </dict>
     <key>WorkingDirectory</key>
-    <string>ABSOLUTE_PATH_TO_BE_REPLACED</string>
+    <string>/Users/zacharylandes/code/2ML/2ml-crm</string>
 </dict>
 </plist> 

@@ -15,6 +15,14 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: '2ML CRM - Manage Your Connections',
   description: 'A modern CRM for managing your consulting business connections',
+  icons: {
+    icon: [
+      { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/favicon-96x96.png', sizes: '96x96', type: 'image/png' }
+    ],
+    shortcut: '/favicon-16x16.png',
+    apple: '/favicon-96x96.png',
+  }
 };
 
 export default function RootLayout({
