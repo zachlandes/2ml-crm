@@ -2,6 +2,7 @@
 
 import { saveMessage } from './messages';
 import { Message } from './types';
+import { getConnection } from './connections';
 
 // Function to create an ACA (Acknowledge, Compliment, Ask) message
 export async function createAcaMessage(
@@ -10,8 +11,13 @@ export async function createAcaMessage(
   compliment: string,
   ask: string
 ): Promise<Message> {
+  // Get the connection to access firstName
+  const connection = await getConnection(connectionId);
+  const firstName = connection?.firstName || '[First name]';
+  
   // Format the message using the ACA template
-  const content = `
+  const content = `Hey ${firstName},
+
 ${acknowledgment}
 
 ${compliment}
