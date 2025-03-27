@@ -5,12 +5,15 @@ import { createAcaMessage, composeCustomMessage } from '@/lib/message-templates'
 import { markMessageAsSent } from '@/lib/messages';
 import { Connection } from '@/lib/types';
 import { addConnectionNote } from '@/lib/connections';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 interface ComposeMessageProps {
   connection: Connection;
 }
 
 export default function ComposeMessage({ connection }: ComposeMessageProps) {
+  const router = useRouter();
   const [messageType, setMessageType] = useState<'aca' | 'custom'>('aca');
   const [acknowledgment, setAcknowledgment] = useState('');
   const [compliment, setCompliment] = useState('');
@@ -62,6 +65,8 @@ export default function ComposeMessage({ connection }: ComposeMessageProps) {
         } else {
           setCustomMessage('');
         }
+        // Refresh the router to ensure connection page shows updated data
+        router.refresh();
       }
     } catch (error) {
       console.error('Error sending message:', error);
@@ -173,7 +178,21 @@ export default function ComposeMessage({ connection }: ComposeMessageProps) {
       {previewMessage && (
         <div className="space-y-4">
           <div className="p-4 bg-gray-100 rounded-md">
-            <h3 className="font-medium mb-2">Message Preview:</h3>
+            <div className="flex justify-between items-center mb-2">
+              <h3 className="font-medium">Message Preview:</h3>
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(previewMessage);
+                }}
+                className="inline-flex items-center text-sm text-gray-600 hover:text-gray-800"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" />
+                  <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z" />
+                </svg>
+                Copy
+              </button>
+            </div>
             <div className="whitespace-pre-wrap">{previewMessage}</div>
           </div>
           
@@ -190,9 +209,58 @@ export default function ComposeMessage({ connection }: ComposeMessageProps) {
       )}
       
       {sent && (
-        <div className="p-4 bg-green-100 text-green-800 rounded-md">
-          Message marked as sent! This would normally send through LinkedIn or email, but for demo purposes, 
-          it's being tracked in your CRM history only.
+        <div className="space-y-4">
+          <div className="p-4 bg-green-100 text-green-800 rounded-md">
+            Message marked as sent! This would normally send through LinkedIn or email, but for demo purposes, 
+            it's being tracked in your CRM history only.
+          </div>
+          
+          <div className="flex space-x-4">
+            <Link
+              href="/"
+              className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700"
+            >
+              Back to Home
+            </Link>
+            
+            <button
+              onClick={async () => {
+                // Calculate date 5 business days from now
+                const dueDate = new Date();
+                let businessDays = 5;
+                while (businessDays > 0) {
+                  dueDate.setDate(dueDate.getDate() + 1);
+                  if (dueDate.getDay() !== 0 && dueDate.getDay() !== 6) {
+                    businessDays--;
+                  }
+                }
+                
+                try {
+                  await fetch('/api/reminders/add', {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                      connectionId: connection.id,
+                      title: `Follow up with ${connection.firstName} ${connection.lastName}`,
+                      description: `Follow up on the message sent on ${new Date().toLocaleDateString()}`,
+                      dueDate: dueDate.toISOString().split('T')[0]
+                    }),
+                  });
+                  
+                  // Show confirmation
+                  alert('Follow-up reminder set for ' + dueDate.toLocaleDateString());
+                } catch (error) {
+                  console.error('Error setting reminder:', error);
+                  alert('Failed to set reminder');
+                }
+              }}
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            >
+              Set Follow-up Reminder
+            </button>
+          </div>
         </div>
       )}
     </div>

@@ -18,8 +18,8 @@ ${compliment}
 
 ${ask}
 
-Best regards,
-[Your Name]
+Best
+Zach
   `.trim();
   
   return saveMessage({

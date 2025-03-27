@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { Inter } from 'next/font/google';
 import { ActionCounter } from '@/components/ActionTracker';
 import { NotificationProvider } from '@/components/ActionNotification';
+import NotificationInitializer from '@/components/NotificationInitializer';
 
 // Load Inter font - clean, geometric typeface perfect for Bauhaus style
 const inter = Inter({ 
@@ -25,6 +26,7 @@ export default function RootLayout({
     <html lang="en" className={inter.variable}>
       <body className="antialiased">
         <NotificationProvider>
+          <NotificationInitializer />
           <div className="min-h-screen bg-background bauhaus-grid relative">
             {/* Bauhaus-inspired geometric elements */}
             <div className="bauhaus-circle w-32 h-32 bg-primary/10 -top-10 -right-10"></div>
