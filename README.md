@@ -95,3 +95,77 @@ npm run dev
 Once you've run these commands, the application will be available at [http://localhost:3000](http://localhost:3000) in your browser.
 
 **Note**: This application is designed to run locally on your machine. The `npm run dev` command is not just for development - it's how you actually use the application.
+
+## Running in Production Mode
+
+While developing, you can use `npm run dev`. For daily usage, you can run the CRM as a background service with full production optimizations and browser notifications.
+
+### Using the Management Tool
+
+The easiest way to manage your CRM is using the included management tool:
+
+```bash
+npm run manage
+```
+
+This opens an interactive menu with options to:
+- Start/stop the CRM
+- View logs
+- Set up the production environment
+- Generate notification icons
+- Open the CRM in your browser
+
+### One-Time Setup
+
+1. Run the setup script to configure the CRM as a background service:
+
+```bash
+npm run setup-production
+```
+
+2. Generate notification icons (requires ImageMagick):
+
+```bash
+# Install ImageMagick if needed
+brew install imagemagick
+
+# Generate icons
+npm run manage
+# Then select option 5
+```
+
+3. The setup will:
+   - Configure the CRM to start automatically when you log in
+   - Set up logging to files in the `logs` directory
+   - Enable browser notifications for reminders
+
+### Manual Control
+
+You can manually control the service with these commands:
+
+```bash
+# Start the CRM
+launchctl start com.2ml-crm
+
+# Stop the CRM
+launchctl stop com.2ml-crm
+
+# Remove from auto-start
+launchctl unload ~/Library/LaunchAgents/com.2ml-crm.plist
+
+# Add back to auto-start
+launchctl load ~/Library/LaunchAgents/com.2ml-crm.plist
+
+# View logs
+tail -f ./logs/output.log
+tail -f ./logs/error.log
+```
+
+### Browser Notifications
+
+The production mode enables browser notifications for reminders:
+- Notifications will appear even when the browser is closed
+- Clicking a notification takes you to the relevant connection
+- Reminders are checked automatically in the background
+
+**Note:** You must grant notification permissions when prompted.
