@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { updateConnectionStatus } from '@/lib/connections';
+import { useNotifications } from '@/components/ActionNotification';
 
 interface StatusSelectorProps {
   connectionId: string;
@@ -24,6 +25,7 @@ export default function StatusSelector({ connectionId, currentStatus }: StatusSe
   const [isOpen, setIsOpen] = useState(false);
   const [status, setStatus] = useState(currentStatus);
   const [isUpdating, setIsUpdating] = useState(false);
+  const { addNotification } = useNotifications();
   
   // Find the current status object
   const currentStatusObj = statusOptions.find(option => option.value === status) || statusOptions[0];
@@ -43,8 +45,20 @@ export default function StatusSelector({ connectionId, currentStatus }: StatusSe
     setIsUpdating(true);
     
     try {
-      await updateConnectionStatus(connectionId, newStatus);
-      setStatus(newStatus);
+      const result = await updateConnectionStatus(connectionId, newStatus);
+      
+      if (result.connection) {
+        setStatus(newStatus);
+        
+        // Show notification if reminders were cleared
+        if (result.clearedReminders > 0) {
+          const message = result.clearedReminders === 1
+            ? '1 reminder was automatically completed due to status change'
+            : `${result.clearedReminders} reminders were automatically completed due to status change`;
+          
+          addNotification('reminder_completed', message);
+        }
+      }
     } catch (error) {
       console.error('Error updating status:', error);
     } finally {

@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { updateConnectionStatus } from '@/lib/connections';
+import { useNotifications } from './ActionNotification';
 
 interface StatusDropdownProps {
   connectionId: string;
@@ -25,6 +26,7 @@ export default function StatusDropdown({ connectionId, currentStatus, onStatusCh
   const [isOpen, setIsOpen] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const { addNotification } = useNotifications();
   
   // Find the current status object
   const currentStatusObj = statusOptions.find(option => option.value === currentStatus) || statusOptions[0];
@@ -43,8 +45,20 @@ export default function StatusDropdown({ connectionId, currentStatus, onStatusCh
     setIsUpdating(true);
     
     try {
-      await updateConnectionStatus(connectionId, newStatus);
-      onStatusChange(newStatus);
+      const result = await updateConnectionStatus(connectionId, newStatus);
+      
+      if (result.connection) {
+        onStatusChange(newStatus);
+        
+        // Show notification if reminders were cleared
+        if (result.clearedReminders > 0) {
+          const message = result.clearedReminders === 1
+            ? '1 reminder was automatically completed due to status change'
+            : `${result.clearedReminders} reminders were automatically completed due to status change`;
+          
+          addNotification('reminder_completed', message);
+        }
+      }
     } catch (error) {
       console.error('Error updating status:', error);
     } finally {

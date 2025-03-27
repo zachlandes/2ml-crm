@@ -219,4 +219,34 @@ export async function getOverdueReminders(): Promise<Reminder[]> {
     ...row,
     completed: Boolean(row.completed)
   }));
+}
+
+// Function to clear reminders when a connection status changes
+export async function clearRemindersOnStatusChange(connectionId: string): Promise<{clearedCount: number}> {
+  const db = await openDb();
+  
+  // Find incomplete reminders for this connection
+  const reminders = await db.all(`
+    SELECT * FROM reminders
+    WHERE connectionId = ? AND completed = 0
+  `, connectionId);
+  
+  if (reminders.length === 0) {
+    return { clearedCount: 0 };
+  }
+  
+  // Mark all reminders as completed
+  const now = new Date().toISOString();
+  await db.run(`
+    UPDATE reminders
+    SET completed = 1, completedAt = ?
+    WHERE connectionId = ? AND completed = 0
+  `, now, connectionId);
+  
+  // Track the action for each reminder
+  for (let i = 0; i < reminders.length; i++) {
+    await trackAction('reminder_completed');
+  }
+  
+  return { clearedCount: reminders.length };
 } 

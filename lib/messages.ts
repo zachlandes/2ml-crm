@@ -60,7 +60,7 @@ export async function markMessageAsSent(id: string): Promise<Message | null> {
     }
     
     // Update the connection status to 'contacted'
-    await updateConnectionStatus(updatedMessage.connectionId, 'contacted');
+    const result = await updateConnectionStatus(updatedMessage.connectionId, 'contacted');
     
     // Track the message sent action
     await trackAction('message_sent');

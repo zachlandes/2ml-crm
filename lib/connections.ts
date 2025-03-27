@@ -292,7 +292,7 @@ export async function updateConnectionNotes(id: string, notes: string): Promise<
 }
 
 // Function to update connection status
-export async function updateConnectionStatus(id: string, status: string): Promise<Connection | null> {
+export async function updateConnectionStatus(id: string, status: string): Promise<{ connection: Connection | null, clearedReminders: number }> {
   try {
     const db = await openDb();
     const now = new Date().toISOString();
@@ -305,11 +305,23 @@ export async function updateConnectionStatus(id: string, status: string): Promis
     // Track the status update
     await trackAction('status_updated');
     
+    // Clear any reminders for this connection
+    const { clearRemindersOnStatusChange } = await import('./reminders');
+    const { clearedCount } = await clearRemindersOnStatusChange(id);
+    
     // Get the updated connection
-    return getConnection(id);
+    const connection = await getConnection(id);
+    
+    return { 
+      connection, 
+      clearedReminders: clearedCount 
+    };
   } catch (error) {
     console.error(`Error updating status for connection ${id}:`, error);
-    return null;
+    return { 
+      connection: null, 
+      clearedReminders: 0 
+    };
   }
 }
 
