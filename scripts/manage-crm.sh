@@ -39,7 +39,7 @@ start_crm() {
     echo "Starting 2ML CRM..."
     launchctl start com.2ml-crm
     sleep 2
-    echo "Done. CRM should be available at http://localhost:3000"
+    echo "Done. CRM should be available at http://localhost:4500"
 }
 
 stop_crm() {
@@ -92,7 +92,7 @@ generate_icons() {
 
 open_browser() {
     echo "Opening CRM in browser..."
-    open http://localhost:3000
+    open http://localhost:4500
 }
 
 # Main loop

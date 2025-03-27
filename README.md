@@ -92,7 +92,7 @@ npm install
 npm run dev
 ```
 
-Once you've run these commands, the application will be available at [http://localhost:3000](http://localhost:3000) in your browser.
+Once you've run these commands, the application will be available at [http://localhost:4500](http://localhost:4500) in your browser.
 
 **Note**: This application is designed to run locally on your machine. The `npm run dev` command is not just for development - it's how you actually use the application.
 

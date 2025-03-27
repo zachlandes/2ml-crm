@@ -19,6 +19,8 @@
     <dict>
         <key>PATH</key>
         <string>/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+        <key>PORT</key>
+        <string>4500</string>
     </dict>
     <key>WorkingDirectory</key>
     <string>ABSOLUTE_PATH_TO_BE_REPLACED</string>
